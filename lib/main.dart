@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'chat_list.dart';
 import 'chat_message.dart';
 import 'firebase_options.dart';
 
@@ -43,7 +44,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final textMessageController = TextEditingController();
-  final messages = List<ChatMessage>.empty(growable: true);
 
   bool _isTextValidated = true;
 
@@ -59,10 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
           message: textMessageController.text,
         );
         FirebaseFirestore.instance.collection('chat').add(chatMessage.toJson());
-        messages.insert(
-          0,
-          chatMessage,
-        );
       });
       textMessageController.clear();
     }
@@ -81,20 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                reverse: true,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: DefaultTextStyle.merge(
-                      style: const TextStyle(color: Colors.indigo),
-                      child: Text(messages[index].timestamp),
-                    ),
-                    title: Text(messages[index].message),
-                  );
-                },
-              ),
+              child: ChatList(),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
