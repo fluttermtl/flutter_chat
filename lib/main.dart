@@ -1,11 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'chat_message.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // We sign the user in anonymously, meaning they get a user ID without having
+  // to provide credentials. While this doesn't allow us to identify the user,
+  // this would, for example, still allow us to associate data in the database
+  // with each user.
+  await FirebaseAuth.instance.signInAnonymously();
   runApp(const MyApp());
 }
 
@@ -46,12 +54,14 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     } else {
       setState(() {
+        final chatMessage = ChatMessage(
+          time: DateTime.now().millisecondsSinceEpoch,
+          message: textMessageController.text,
+        );
+        FirebaseFirestore.instance.collection('chat').add(chatMessage.toJson());
         messages.insert(
           0,
-          ChatMessage(
-            time: DateTime.now().millisecondsSinceEpoch,
-            message: textMessageController.text,
-          ),
+          chatMessage,
         );
       });
       textMessageController.clear();
@@ -113,17 +123,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-class ChatMessage {
-  ChatMessage({
-    required this.time,
-    required this.message,
-  });
-
-  final int time;
-  final String message;
-
-  String get timestamp =>
-      '${DateTime.fromMillisecondsSinceEpoch(time).hour}:${DateTime.fromMillisecondsSinceEpoch(time).minute}';
 }
