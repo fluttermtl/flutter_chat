@@ -20,7 +20,7 @@ class ChatMessage {
   Map<String, dynamic> toJson() {
     return {
       'time': time,
-      'chatMessage': message,
+      'message': message,
     };
   }
 }
